@@ -19,7 +19,7 @@ enum OrderStatus {
   CANCELLED
 }
 
-model Order {
+model order {
   id String @id @default(uuid())
   totalAmount Float
   totalItems Int
