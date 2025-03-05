@@ -72,6 +72,9 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
 
     const order = await this.findOne( id )          // deberia de existir
 
+    if( order.status === status ) {
+      return order
+    }
 
 
     return this.order.update({
