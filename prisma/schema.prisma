@@ -20,16 +20,26 @@ enum OrderStatus {
 }
 
 model order {
-  id String @id @default(uuid())
+  id          String @id @default(uuid())
   totalAmount Float
-  totalItems Int
+  totalItems  Int
 
-  status OrderStatus
-  paid Boolean @default(false)
+  status OrderStatus @default(PENDING)
+  paid   Boolean     @default(false)
   paidAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Order_item order_items[] // alt + shift + f 
 }
 
+model order_items {
+  id        String @id @default(uuid())
+  productId Int
+  quantity  Int
+  price     Float
 
+  order   order?  @relation(fields: [orderId], references: [id])
+  orderId String?
+}
