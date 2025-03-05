@@ -11,7 +11,7 @@
 
 ## 1. Clonar el proyecto
 
-## 2. Project setup
+## 2. Instalar Dependencias
 
 ```bash
 $ yarn install
@@ -24,7 +24,7 @@ $ yarn install
 
 
 
-## Compile and run the project
+## 5. Compile and run the project
 
 ```bash
 # development
@@ -33,13 +33,3 @@ $ yarn run start
 # watch mode
 $ yarn run start:dev
 ```
-
-
-
-
-
-
-
-
-
-
