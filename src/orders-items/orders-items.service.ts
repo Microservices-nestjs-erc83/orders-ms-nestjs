@@ -1,8 +1,8 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateOrdersItemDto } from './dto/create-orders-item.dto';
 import { PrismaClient } from '@prisma/client';
 import { PRODUCT_SERVICE } from 'src/config';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -16,28 +16,37 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
     super()
   }
   
-  
+
     async onModuleInit() {
       await this.$connect()
       this.logger.log('Database ordersdb connected')
     }
-
-  async create(createOrdersItemDto: CreateOrdersItemDto) {
     
-    const ids = [7,8];
+    async create(createOrdersItemDto: CreateOrdersItemDto) {
+      try {
+        //1 Confirma los ids de los productos
+        const productsIds = createOrdersItemDto.items.map( item => item.productId )
+        const products: any[] = await firstValueFrom(
+          this.productsClient.send({ cmd: 'validate_products'}, productsIds),
+        );
 
-    //observable a promesa con firstValueForm
-    const products = await firstValueFrom(
-      this.productsClient.send({ cmd: 'validate_products'}, ids)
-    )
-    
-    return products;
+        //2 calculos de los valores
+        const totalAmount = createOrdersItemDto.items.reduce(( acc, orderItem ) => {
+          
+          const price = products.find( 
+            (product) => product.id === orderItem.productId, 
+          ).price 
+          return price * orderItem.quantity;
+        }, 0);
 
-
-    //return {
-    //  serrvice: 'Orders Microservice',
-    //  createOrderDto: createOrdersItemDto
-    //}
+        return {totalAmount}
+      
+      } catch (error) {
+        throw new RpcException({
+          status: HttpStatus.BAD_REQUEST,
+          message: 'Error al crear una OrdenItem'
+        })
+    }
 
   }
 
