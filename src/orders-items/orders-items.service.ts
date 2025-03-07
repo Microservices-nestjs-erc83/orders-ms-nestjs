@@ -5,6 +5,7 @@ import { PRODUCT_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PaginationOrderDto } from 'src/orders/dto/pagination-order.dto';
+import { ChangeOrderItemStatusDto } from './dto';
 
 @Injectable()
 export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
@@ -152,6 +153,23 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
       }
     }
 
+    async changeStatus(changeOrderStatusDto: ChangeOrderItemStatusDto ) {
 
+      const { id, status } = changeOrderStatusDto;
+  
+      const order = await this.findOne( id )          // deberia de existir
+  
+      if( order.status === status ) {
+        return order
+      }
+  
+      return this.order.update({
+        where: { id },
+        data: {
+          status: status 
+        }
+      })
+  
+    }
 
 }
