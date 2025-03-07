@@ -38,8 +38,30 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
           ).price 
           return price * orderItem.quantity;
         }, 0);
+        //return {totalAmount}
+      
+        const totalItems = createOrdersItemDto.items.reduce( (acc, orderItem) => {
+          return acc + orderItem.quantity; 
+        }, 0)
 
-        return {totalAmount}
+        //3. Crear transaccion base de datos
+        const orderItem = await this.order.create({
+          data: {
+            totalAmount: totalAmount,
+            totalItems: totalItems,
+
+            Order_item: {
+              createMany: {
+                data: createOrdersItemDto.items.map(( orderItem ) => ({
+                  price: products.find( product => product.id === orderItem.productId ).price ,
+                  productId: orderItem.productId,
+                  quantity: orderItem.quantity
+                }))
+              } 
+            }       
+          }
+        }) 
+        return orderItem;
       
       } catch (error) {
         throw new RpcException({
