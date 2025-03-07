@@ -17,8 +17,8 @@ export class OrdersItemsController {
     return this.ordersItemsService.findAll();
   }
 
-  @MessagePattern('findOneOrdersItem')
-  findOne(@Payload() id: number) {
+  @MessagePattern('findOneOrderItem')
+  findOne(@Payload('id') id: string) {
     return this.ordersItemsService.findOne(id);
   }
 

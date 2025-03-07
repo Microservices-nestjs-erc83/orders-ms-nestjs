@@ -90,8 +90,41 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
     return `This action returns all ordersItems`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ordersItem`;
+  async findOne(id: string) {
+
+    const order = await this.order.findFirst({
+      where: { id },
+      include: {
+        Order_item: {
+          select: {
+            price: true,
+            quantity: true,
+            productId: true
+          }
+        }
+      }
+    })
+
+    if( !order ) {
+      throw new RpcException({
+        message: `Order with id #${ id } not found`,
+        status: HttpStatus.BAD_REQUEST,
+      })
+    }
+
+    const productIds = order.Order_item.map(( orderItem ) => orderItem.productId )
+    const products: any[] = await firstValueFrom(
+      this.productsClient.send({ cmd: 'validate_products' }, productIds),
+    )
+
+
+    return {
+      ...order,
+      Order_item: order.Order_item.map( orderItem => ({
+        ...orderItem,
+        name: products.find( (product) => product.id === orderItem.productId ).name,
+      }))
+    }
   }
 
 }
