@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { PRODUCT_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { PaginationOrderDto } from 'src/orders/dto/pagination-order.dto';
 
 @Injectable()
 export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
@@ -86,10 +87,6 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
 
   }
 
-  findAll() {
-    return `This action returns all ordersItems`;
-  }
-
   async findOne(id: string) {
 
     const order = await this.order.findFirst({
@@ -126,5 +123,35 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
       }))
     }
   }
+
+
+  async findAll( paginationOrderDto: PaginationOrderDto) {
+  
+      const totalPages = await this.order.count({
+        where: {
+          status: paginationOrderDto.status
+        }
+      })
+  
+      const currentPage = paginationOrderDto.page;
+      const perPage = paginationOrderDto.limit;
+  
+      return {
+        data: await this.order.findMany({
+          skip: (currentPage - 1 ) * perPage,
+          take: perPage,
+          where: {
+            status: paginationOrderDto.status
+          }
+        }),
+        meta: {
+          total: totalPages,
+          page: currentPage,
+          lastPage: Math.ceil( totalPages / perPage )
+        }
+      }
+    }
+
+
 
 }
