@@ -21,10 +21,9 @@ $ yarn install
 
 ## 4. Levantar la base de datos con `docker compose up -d`
 
+## 5. Ejecutar migracion de prisma `npx prisma migrate dev`
 
-
-
-## 5. Compile and run the project
+## 6. Compile and run the project
 
 ```bash
 # development
