@@ -180,13 +180,11 @@ export class OrdersItemsService extends PrismaClient implements OnModuleInit  {
         this.productsClientNats.send('create.payment.session', {
           orderId: order.id,
           currency: 'usd',
-          items: [
-            {
-              name: 'Producto 1',
-              price: 100,
-              quantity: 2,
-            }
-          ]
+          items: order.Order_item.map( item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          }))
         })
       )
 
