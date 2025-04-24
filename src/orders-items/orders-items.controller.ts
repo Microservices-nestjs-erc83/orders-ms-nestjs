@@ -10,8 +10,15 @@ export class OrdersItemsController {
   constructor(private readonly ordersItemsService: OrdersItemsService) {}
 
   @MessagePattern('createOrdersItem')
-  create(@Payload() createOrdersItemDto: CreateOrdersItemDto) {
-    return this.ordersItemsService.create(createOrdersItemDto);
+  async create(@Payload() createOrdersItemDto: CreateOrdersItemDto) {
+    
+    const order = await this.ordersItemsService.create(createOrdersItemDto);
+    const paymentSession = await this.ordersItemsService.createPaymentSession(order)
+
+    return {
+      order,
+      paymentSession,
+    }
   }
 
 
